@@ -2,7 +2,7 @@ import math
 import random
 import time
 import matplotlib.pyplot as plt
-import sys
+#import sys
 
 
 GENOTYPE_LENGTH = 128
@@ -113,27 +113,27 @@ class RandomGenotypeSolver:
         self.function_name = function_name
     def solve(self, iterations, save_data_for_plot=False, plotting_step=1):
         best_genotype = generate_random_genotype()
-        best_args = decode_genotype(best_genotype, test_function.search_domain)
-        best_fitness = fitness(test_function, best_args)
+        best_args = decode_genotype(best_genotype, self.test_function.search_domain)
+        best_fitness = fitness(self.test_function, best_args)
         if save_data_for_plot:
             plot_time = []
             plot_time.append(0)
             plot_result = []
-            plot_result.append(test_function.goal(best_args))
+            plot_result.append(self.test_function.goal(best_args))
             plot_fitness = []
             plot_fitness.append(best_fitness)
             start_time = time.perf_counter()
         for i in range(1, iterations):
             new_genotype = generate_random_genotype()
-            new_args = decode_genotype(new_genotype, test_function.search_domain)
-            new_fitness = fitness(test_function, new_args)
+            new_args = decode_genotype(new_genotype, self.test_function.search_domain)
+            new_fitness = fitness(self.test_function, new_args)
             if new_fitness > best_fitness:
                 best_genotype = new_genotype
                 best_args = new_args
                 best_fitness = new_fitness
             if save_data_for_plot and (i % plotting_step == 0 or i == iterations - 1):
                 plot_time.append(time.perf_counter() - start_time)
-                plot_result.append(test_function.goal(best_args))
+                plot_result.append(self.test_function.goal(best_args))
                 plot_fitness.append(best_fitness)
         if save_data_for_plot:
             return best_genotype, best_args, best_fitness, plot_time, plot_result, plot_fitness
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 
     # search_domain = [ (-10, 10), (-10, 10) ]
     # genotype = generate_random_genotype()
-    # genotype = [ 0 for i in range(GENOTYPE_LENGTH)]
+    # genotype = [ 1 for i in range(GENOTYPE_LENGTH)]
     # genotype[GENOTYPE_LENGTH_HALF - 2] = 0
     # genotype[GENOTYPE_LENGTH_HALF - 1] = 0
     # genotype[GENOTYPE_LENGTH - 2] = 0
@@ -361,7 +361,7 @@ if __name__ == "__main__":
         random_climb_solvers.append(random_climb_solver)
     
     random_genotype_solvers = []
-    random_genotype_solvers.append(RandomGenotypeSolver(generate_rastrigin_function(2), "Rastrigin function"))
+    random_genotype_solvers.append(RandomGenotypeSolver(TestFunction(functions[0][0][0], functions[0][0][1], functions[0][0][2]), "Rastrigin function"))
     
     for rs in random_solvers:
         rs.solve_multiple_times_and_plot(100, 20, plotting_step=1)
