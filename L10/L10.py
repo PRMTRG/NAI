@@ -37,7 +37,10 @@ class GA:
             
             # crossing
             parents_idx = 1
-            children = []            
+            children = [] 
+            for i in range(self.elite_count):
+                children.append(parents[i])
+            random.shuffle(parents)
             while len(children) < pop_size and parents_idx < pop_size:
                 for child in self.crossover_f(self.prob_crossover, parents[parents_idx],
                                               parents[parents_idx - 1]):
@@ -47,7 +50,7 @@ class GA:
                 children = children[:pop_size]
             
             # mutation
-            for i in range(pop_size):
+            for i in range(self.elite_count, pop_size):
                 children[i] = self.mutation_f(children[i], self.prob_mutation)
             
             self.population = children
