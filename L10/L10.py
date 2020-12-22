@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 class GA:
     def __init__(self, gen_starting_pop_f, fitness_f, selection_f, crossover_f,
-                 mutation_f, termination_f, prob_crossover, prob_mutation):
+                 mutation_f, termination_f, prob_crossover, prob_mutation, elite_count):
         self.gen_starting_pop_f = gen_starting_pop_f
         self.fitness_f = fitness_f
         self.selection_f = selection_f
@@ -14,26 +14,33 @@ class GA:
         self.termination_f = termination_f
         self.prob_crossover = prob_crossover
         self.prob_mutation = prob_mutation
+        self.elite_count = elite_count
         self.population = self.gen_starting_pop_f()
     def get_best_specimen_index(self):
         return self.population_fitness.index(max(self.population_fitness))
     def run(self):
         pop_size = len(self.population)
-        self.population_fitness = [ 0 for i in range(pop_size) ]
-        plot_data = []
+        self.population_fitness = []
         for i in range(pop_size):
-            self.population_fitness[i] = self.fitness_f(self.population[i])
+            self.population_fitness.append(self.fitness_f(self.population[i]))
+        plot_data = []
         while not self.termination_f(self):         
-            # selection
+            # elites
             parents = []
-            for i in range(pop_size):
+            best_specimen_index = self.get_best_specimen_index()
+            for i in range(self.elite_count):
+                parents.append(self.population[best_specimen_index])
+            
+            # selection
+            for i in range(len(parents), pop_size):
                 parents.append(self.selection_f(self.population, self.population_fitness))
             
             # crossing
             parents_idx = 1
             children = []            
             while len(children) < pop_size and parents_idx < pop_size:
-                for child in self.crossover_f(self.prob_crossover, parents[parents_idx], parents[parents_idx - 1]):
+                for child in self.crossover_f(self.prob_crossover, parents[parents_idx],
+                                              parents[parents_idx - 1]):
                     children.append(child)
                 parents_idx += 2
             if len(children) > pop_size:
@@ -214,19 +221,26 @@ if __name__ == "__main__":
     
     iterations = 200
     population_size = 100
+    elite_count = 1
     genotype_size = 20
     crossover_probability = 0.5
     mutation_probability = 0.01
     
-    ga = GA(gen_gen_starting_pop(population_size, genotype_size), rastrigin_fitness, tournament_selection, one_point_crossover,
-            mutation, gen_terminate_after_iterations(iterations), crossover_probability, mutation_probability)
+    ga = GA(gen_gen_starting_pop(population_size, genotype_size),
+            rastrigin_fitness, tournament_selection, one_point_crossover,
+            mutation, gen_terminate_after_iterations(iterations),
+            crossover_probability, mutation_probability, elite_count)
     
     best_genotype, plot_data = ga.run()
     
     formula, _, search_domain = generate_rastrigin_function(2)
     
     print()
-    print("{} = {} = {} = {}".format(rastrigin_fitness(best_genotype), formula(decode_genotype(best_genotype, search_domain)), decode_genotype(best_genotype, search_domain), best_genotype))
+    print("{} = {} = {} = {}".format(rastrigin_fitness(best_genotype),
+                                     formula(decode_genotype(
+                                         best_genotype, search_domain)),
+                                     decode_genotype(best_genotype, search_domain),
+                                     best_genotype))
     
     plt.plot(plot_data)
     plt.show()
