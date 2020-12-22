@@ -1,3 +1,5 @@
+'''W oparciu o szkielet perceptronu prostego by Paweł Syty'''
+
 import csv
 import random
 import numpy
